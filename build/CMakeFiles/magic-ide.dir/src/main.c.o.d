@@ -858,4 +858,14 @@ CMakeFiles/magic-ide.dir/src/main.c.o: /workspaces/Magic-IDE/src/main.c \
  /usr/include/webkitgtk-4.1/webkit/WebKitVersion.h \
  /usr/include/webkitgtk-4.1/webkit/WebKitWebsiteDataAccessPermissionRequest.h \
  /usr/include/webkitgtk-4.1/webkit/WebKitXRPermissionRequest.h \
- /usr/include/webkitgtk-4.1/webkit/WebKitAutocleanups.h
+ /usr/include/webkitgtk-4.1/webkit/WebKitAutocleanups.h \
+ /workspaces/Magic-IDE/include/file_manager.h /usr/include/json-c/json.h \
+ /usr/include/json-c/arraylist.h /usr/include/json-c/debug.h \
+ /usr/include/json-c/json_c_version.h /usr/include/json-c/json_object.h \
+ /usr/include/json-c/json_inttypes.h /usr/include/json-c/json_config.h \
+ /usr/include/inttypes.h /usr/include/json-c/json_types.h \
+ /usr/include/json-c/printbuf.h \
+ /usr/include/json-c/json_object_iterator.h \
+ /usr/include/json-c/json_patch.h /usr/include/json-c/json_pointer.h \
+ /usr/include/json-c/json_tokener.h /usr/include/json-c/json_util.h \
+ /usr/include/json-c/linkhash.h /workspaces/Magic-IDE/include/ipc.h
