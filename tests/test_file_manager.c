@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
+#include <sys/stat.h>
+#include <unistd.h>
 #include "../include/file_manager.h"
 
 // Simple test framework for Magic IDE

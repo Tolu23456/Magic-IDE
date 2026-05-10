@@ -136,7 +136,9 @@ char* lsp_receive_response(LSPClient* client) {
     char* content_length_str = strstr(header, "Content-Length:");
     if (!content_length_str) return NULL;
 
-    int content_length = atoi(content_length_str + 15);
+    long content_length_long = atol(content_length_str + 15);
+    if (content_length_long <= 0) return NULL;
+    size_t content_length = (size_t)content_length_long;
 
     if (content_length > client->buffer_size - 1) {
         client->buffer = (char*)realloc(client->buffer, content_length + 1);

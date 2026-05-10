@@ -76,7 +76,6 @@ int main(int argc, char* argv[]) {
     gtk_window_set_title(GTK_WINDOW(main_window), "Magic IDE");
 
     // Get window size from config
-    Config* config = config_get();
     int width = config_get_int("ui.window_width", 1200);
     int height = config_get_int("ui.window_height", 800);
     bool maximized = config_get_bool("ui.window_maximized", false);

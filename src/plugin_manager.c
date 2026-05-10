@@ -236,7 +236,18 @@ int plugin_manager_load_plugins(PluginManager* manager) {
 
         // Check for manifest file
         char manifest_path[PATH_MAX];
-        snprintf(manifest_path, sizeof(manifest_path), "%s/%s", plugin_path, PLUGIN_MANIFEST);
+        size_t plugin_len = strlen(plugin_path);
+        size_t manifest_len = strlen(PLUGIN_MANIFEST);
+
+        if (plugin_len + 1 + manifest_len >= sizeof(manifest_path)) {
+            LOG_WARNING("Plugin path too long, skipping: %s", plugin_path);
+            continue;
+        }
+
+        memcpy(manifest_path, plugin_path, plugin_len);
+        manifest_path[plugin_len] = '/';
+        memcpy(manifest_path + plugin_len + 1, PLUGIN_MANIFEST, manifest_len);
+        manifest_path[plugin_len + 1 + manifest_len] = '\0';
 
         if (access(manifest_path, F_OK) != 0) {
             continue;
@@ -258,7 +269,6 @@ int plugin_manager_load_plugins(PluginManager* manager) {
         }
 
         // Check if plugin should be enabled
-        Config* config = config_get();
         char config_key[256];
         snprintf(config_key, sizeof(config_key), "plugins.%s.enabled", info->id);
         info->enabled = config_get_bool(config_key, true);

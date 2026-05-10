@@ -10,11 +10,6 @@ static pthread_mutex_t logger_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 // ANSI color codes
 static const char* COLOR_RESET = "\033[0m";
-static const char* COLOR_DEBUG = "\033[36m";   // Cyan
-static const char* COLOR_INFO = "\033[32m";    // Green
-static const char* COLOR_WARNING = "\033[33m"; // Yellow
-static const char* COLOR_ERROR = "\033[31m";   // Red
-static const char* COLOR_CRITICAL = "\033[35m"; // Magenta
 
 // Simple path expansion for ~
 static char* expand_path(const char* path) {

@@ -7,7 +7,7 @@
 #include <pthread.h>
 
 // Async IPC message
-typedef struct {
+typedef struct AsyncIPCMessage {
     char* id;
     char* method;
     struct json_object* params;
