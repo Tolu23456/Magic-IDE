@@ -1,0 +1,7 @@
+/workspaces/Magic-IDE/build/CMakeFiles/magic-ide.dir
+/workspaces/Magic-IDE/build/CMakeFiles/edit_cache.dir
+/workspaces/Magic-IDE/build/CMakeFiles/rebuild_cache.dir
+/workspaces/Magic-IDE/build/CMakeFiles/list_install_components.dir
+/workspaces/Magic-IDE/build/CMakeFiles/install.dir
+/workspaces/Magic-IDE/build/CMakeFiles/install/local.dir
+/workspaces/Magic-IDE/build/CMakeFiles/install/strip.dir
