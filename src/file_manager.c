@@ -101,7 +101,7 @@ char** list_directory(const char* dirname, int* count) {
     DIR* dir = opendir(dirname);
     if (!dir) {
         fprintf(stderr, "Failed to open directory: %s\n", dirname);
-        *count = 0;
+        *count = -1;
         return NULL;
     }
 
@@ -130,7 +130,7 @@ char** list_directory(const char* dirname, int* count) {
     if (!files) {
         fprintf(stderr, "Failed to allocate memory for file list\n");
         closedir(dir);
-        *count = 0;
+        *count = -1;
         return NULL;
     }
 
@@ -150,7 +150,7 @@ char** list_directory(const char* dirname, int* count) {
             }
             free(files);
             closedir(dir);
-            *count = 0;
+            *count = -1;
             return NULL;
         }
         index++;

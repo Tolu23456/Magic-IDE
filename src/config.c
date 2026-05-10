@@ -235,24 +235,67 @@ Config* config_get(void) {
     return g_config;
 }
 
-int config_set(const char* key, struct json_object* value) {
-    if (!g_config || !g_config->custom_settings || !key || !value) {
-        return -1;
-    }
-
-    // Simple key setting (for now, just top-level keys)
-    json_object_object_add(g_config->custom_settings, key, value);
-    return 0;
-}
-
 struct json_object* config_get_value(const char* key) {
     if (!g_config || !g_config->custom_settings || !key) {
         return NULL;
     }
 
-    struct json_object* value = NULL;
-    json_object_object_get_ex(g_config->custom_settings, key, &value);
-    return value;
+    struct json_object* current = g_config->custom_settings;
+    char* key_copy = strdup(key);
+    if (!key_copy) {
+        return NULL;
+    }
+
+    char* token = strtok(key_copy, ".");
+    while (token && current) {
+        struct json_object* next = NULL;
+        if (!json_object_object_get_ex(current, token, &next)) {
+            current = NULL;
+            break;
+        }
+
+        current = next;
+        token = strtok(NULL, ".");
+    }
+
+    free(key_copy);
+    return current;
+}
+
+int config_set(const char* key, struct json_object* value) {
+    if (!g_config || !g_config->custom_settings || !key || !value) {
+        return -1;
+    }
+
+    char* key_copy = strdup(key);
+    if (!key_copy) {
+        return -1;
+    }
+
+    char* token = strtok(key_copy, ".");
+    struct json_object* current = g_config->custom_settings;
+    char* next_token = NULL;
+
+    while (token) {
+        next_token = strtok(NULL, ".");
+        if (!next_token) {
+            json_object_object_add(current, token, json_object_get(value));
+            break;
+        }
+
+        struct json_object* child = NULL;
+        if (!json_object_object_get_ex(current, token, &child) ||
+            json_object_get_type(child) != json_type_object) {
+            child = json_object_new_object();
+            json_object_object_add(current, token, child);
+        }
+
+        current = child;
+        token = next_token;
+    }
+
+    free(key_copy);
+    return 0;
 }
 
 const char* config_get_string(const char* key, const char* default_value) {
