@@ -98,7 +98,7 @@ static void web_view_load_changed_cb(WebKitWebView* web_view, WebKitLoadEvent lo
             "  }"
             "});";
 
-        webkit_web_view_run_javascript(web_view, ipc_script, NULL, NULL, NULL);
+        webkit_web_view_evaluate_javascript(web_view, ipc_script, -1, NULL, NULL, NULL, NULL, NULL);
     }
 }
 
@@ -125,5 +125,8 @@ static void web_view_script_dialog_cb(WebKitWebView* web_view, WebKitScriptDialo
     if (type == WEBKIT_SCRIPT_DIALOG_ALERT || type == WEBKIT_SCRIPT_DIALOG_CONFIRM || type == WEBKIT_SCRIPT_DIALOG_PROMPT) {
         const char* message = webkit_script_dialog_get_message(dialog);
         printf("JavaScript Dialog: %s\n", message);
+
+        // For now, just accept all dialogs
+        webkit_script_dialog_confirm(dialog, TRUE);
     }
 }

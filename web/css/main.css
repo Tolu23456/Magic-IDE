@@ -80,6 +80,18 @@ body {
     /* File tree styles will be added here */
 }
 
+.file-item {
+    padding: 4px 8px;
+    cursor: pointer;
+    border-radius: 3px;
+    margin: 2px 0;
+    font-size: 13px;
+}
+
+.file-item:hover {
+    background-color: rgba(0, 122, 204, 0.1);
+}
+
 #editor-container {
     flex: 1;
     display: flex;
@@ -138,6 +150,24 @@ body {
     justify-content: space-between;
 }
 
+#git-controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: 'Consolas', monospace;
+}
+
+#git-branch {
+    background-color: rgba(255,255,255,0.2);
+    padding: 2px 6px;
+    border-radius: 3px;
+}
+
+#git-status {
+    color: #4CAF50;
+    font-weight: bold;
+}
+
 #cursor-position, #file-info {
     font-family: 'Consolas', monospace;
 }
@@ -166,6 +196,13 @@ body {
 #terminal {
     white-space: pre-wrap;
     word-wrap: break-word;
+    font-family: 'Consolas', 'Monaco', monospace;
+    line-height: 1.4;
+}
+
+#terminal-input {
+    font-family: inherit;
+    font-size: inherit;
 }
 
 /* Modal Styles */

@@ -8,9 +8,13 @@ class MagicIDE {
     }
 
     init() {
-        this.bindEvents();
-        this.initializeEditor();
-        console.log('Magic IDE initialized');
+        this.initializeMonaco().then(() => {
+            this.bindEvents();
+            this.loadSettings();
+            this.updateFileTree();
+            this.initializeGit();
+            console.log('Magic IDE initialized with Monaco Editor');
+        });
     }
 
     bindEvents() {
@@ -91,9 +95,36 @@ class MagicIDE {
     }
 
     updateFileTree() {
-        // Placeholder for file tree
+        // Populate file tree from current directory
         const fileTree = document.getElementById('file-tree');
-        fileTree.innerHTML = '<div>No files loaded</div>';
+        fileTree.innerHTML = '<div>Loading files...</div>';
+
+        // In a real implementation, this would call the backend
+        // For now, show a basic structure
+        setTimeout(() => {
+            fileTree.innerHTML = `
+                <div class="file-item" data-path=".">📁 . (root)</div>
+                <div class="file-item" data-path="src">📁 src/</div>
+                <div class="file-item" data-path="include">📁 include/</div>
+                <div class="file-item" data-path="web">📁 web/</div>
+                <div class="file-item" data-path="CMakeLists.txt">📄 CMakeLists.txt</div>
+                <div class="file-item" data-path="PLAN.md">📄 PLAN.md</div>
+            `;
+
+            // Add click handlers
+            document.querySelectorAll('.file-item').forEach(item => {
+                item.addEventListener('click', () => {
+                    const path = item.getAttribute('data-path');
+                    if (path.endsWith('/')) {
+                        // Directory - could expand
+                        console.log('Directory clicked:', path);
+                    } else {
+                        // File - open it
+                        this.simulateFileOpen(path);
+                    }
+                });
+            });
+        }, 100);
     }
 
     setStatusMessage(message) {

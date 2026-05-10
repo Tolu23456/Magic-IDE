@@ -9,7 +9,7 @@
 void send_message_to_frontend(WebKitWebView* web_view, const char* message) {
     char* script = (char*)malloc(strlen(message) + 50);
     sprintf(script, "window.postMessage(%s, '*');", message);
-    webkit_web_view_run_javascript(web_view, script, NULL, NULL, NULL);
+    webkit_web_view_evaluate_javascript(web_view, script, -1, NULL, NULL, NULL, NULL, NULL);
     free(script);
 }
 
@@ -38,6 +38,8 @@ void handle_frontend_message(WebKitWebView* web_view, const char* message) {
                         sprintf(response, "{\"result\": \"%s\"}", content);
                         send_message_to_frontend(web_view, response);
                         free(content);
+                    } else {
+                        send_message_to_frontend(web_view, "{\"error\": \"Failed to read file\"}");
                     }
                 }
             }
