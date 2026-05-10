@@ -5,128 +5,141 @@
 #include <string.h>
 #include "file_manager.h"
 #include "ipc.h"
+#include "webview.h"
+#include "logger.h"
+#include "config.h"
+#include "memory_pool.h"
+#include "plugin_manager.h"
+#include "async_ipc.h"
 
 static void destroy_window_cb(GtkWidget* widget, GtkWidget* window);
-static gboolean close_web_view_cb(WebKitWebView* web_view, GtkWidget* window);
-static void web_view_load_changed_cb(WebKitWebView* web_view, WebKitLoadEvent load_event, gpointer user_data);
-static gboolean web_view_decide_policy_cb(WebKitWebView* web_view, WebKitPolicyDecision* decision, WebKitPolicyDecisionType decision_type, gpointer user_data);
-static void web_view_script_dialog_cb(WebKitWebView* web_view, WebKitScriptDialog* dialog, gpointer user_data);
 
-static WebKitWebView* main_web_view = NULL;
+// Global instances
+static PluginManager* g_plugin_manager = NULL;
+static MemoryPool* g_memory_pool = NULL;
+static StringPool* g_string_pool = NULL;
 
 int main(int argc, char* argv[]) {
-    GtkWidget *main_window;
-    GtkWidget *web_view;
+    // Initialize logging first
+    if (logger_init(LOG_LEVEL_INFO, "~/.magic-ide/magic-ide.log", true) != 0) {
+        fprintf(stderr, "Failed to initialize logging\n");
+        return 1;
+    }
+
+    LOG_INFO("Starting Magic IDE");
+
+    // Initialize configuration
+    if (config_init() != 0) {
+        LOG_CRITICAL("Failed to initialize configuration");
+        logger_shutdown();
+        return 1;
+    }
+
+    if (config_load("~/.magic-ide/config.json") != 0) {
+        LOG_WARNING("Failed to load configuration, using defaults");
+    }
+
+    // Initialize memory pools
+    g_memory_pool = memory_pool_create(1024, 10); // 1KB blocks, 10 initial
+    g_string_pool = string_pool_create(100); // 100 initial strings
+
+    if (!g_memory_pool || !g_string_pool) {
+        LOG_CRITICAL("Failed to initialize memory pools");
+        config_cleanup();
+        logger_shutdown();
+        return 1;
+    }
+
+    // Initialize async IPC
+    if (async_ipc_init() != 0) {
+        LOG_CRITICAL("Failed to initialize async IPC");
+        memory_pool_destroy(g_memory_pool);
+        string_pool_destroy(g_string_pool);
+        config_cleanup();
+        logger_shutdown();
+        return 1;
+    }
+
+    // Initialize plugin manager
+    g_plugin_manager = plugin_manager_create("~/.magic-ide/plugins");
+    if (g_plugin_manager) {
+        if (plugin_manager_load_plugins(g_plugin_manager) < 0) {
+            LOG_WARNING("Failed to load plugins");
+        }
+    }
 
     // Initialize GTK
     gtk_init(&argc, &argv);
 
     // Create main window
-    main_window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+    GtkWidget *main_window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
     gtk_window_set_title(GTK_WINDOW(main_window), "Magic IDE");
-    gtk_window_set_default_size(GTK_WINDOW(main_window), 1200, 800);
-    g_signal_connect(main_window, "destroy", G_CALLBACK(destroy_window_cb), NULL);
 
-    // Create WebKit WebView
-    web_view = webkit_web_view_new();
-    main_web_view = WEBKIT_WEB_VIEW(web_view);
-    g_signal_connect(web_view, "close", G_CALLBACK(close_web_view_cb), main_window);
-    g_signal_connect(web_view, "load-changed", G_CALLBACK(web_view_load_changed_cb), NULL);
-    g_signal_connect(web_view, "decide-policy", G_CALLBACK(web_view_decide_policy_cb), NULL);
-    g_signal_connect(web_view, "script-dialog", G_CALLBACK(web_view_script_dialog_cb), NULL);
+    // Get window size from config
+    Config* config = config_get();
+    int width = config_get_int("ui.window_width", 1200);
+    int height = config_get_int("ui.window_height", 800);
+    bool maximized = config_get_bool("ui.window_maximized", false);
 
-    // Load initial HTML
-    char* html_path = "web/index.html";
-    if (file_exists(html_path)) {
-        char* html_content = read_file(html_path);
-        if (html_content) {
-            webkit_web_view_load_html(WEBKIT_WEB_VIEW(web_view), html_content, "file:///");
-            free(html_content);
-        } else {
-            // Fallback HTML
-            webkit_web_view_load_html(WEBKIT_WEB_VIEW(web_view),
-                "<!DOCTYPE html><html><body><h1>Magic IDE</h1><p>Loading...</p></body></html>", NULL);
-        }
-    } else {
-        // Fallback HTML
-        webkit_web_view_load_html(WEBKIT_WEB_VIEW(web_view),
-            "<!DOCTYPE html><html><body><h1>Magic IDE</h1><p>HTML file not found</p></body></html>", NULL);
+    gtk_window_set_default_size(GTK_WINDOW(main_window), width, height);
+    if (maximized) {
+        gtk_window_maximize(GTK_WINDOW(main_window));
     }
 
+    g_signal_connect(main_window, "destroy", G_CALLBACK(destroy_window_cb), NULL);
+
+    // Create WebKit WebView using our webview module
+    WebKitWebView* web_view = webview_create();
+    if (!web_view) {
+        LOG_CRITICAL("Failed to create WebView");
+        plugin_manager_destroy(g_plugin_manager);
+        async_ipc_shutdown();
+        memory_pool_destroy(g_memory_pool);
+        string_pool_destroy(g_string_pool);
+        config_cleanup();
+        logger_shutdown();
+        return 1;
+    }
+
+    // Setup WebView callbacks
+    webview_setup_callbacks(web_view, main_window);
+
+    // Load initial HTML
+    webview_load_html(web_view, "web/index.html");
+
     // Add web view to window
-    gtk_container_add(GTK_CONTAINER(main_window), web_view);
+    gtk_container_add(GTK_CONTAINER(main_window), GTK_WIDGET(web_view));
     gtk_widget_show_all(main_window);
+
+    // Call plugin hook for application startup
+    if (g_plugin_manager) {
+        plugin_manager_call_hook(g_plugin_manager, "app_startup", NULL);
+    }
+
+    LOG_INFO("Magic IDE started successfully");
 
     // Run GTK main loop
     gtk_main();
+
+    // Cleanup
+    if (g_plugin_manager) {
+        plugin_manager_call_hook(g_plugin_manager, "app_shutdown", NULL);
+        plugin_manager_destroy(g_plugin_manager);
+    }
+
+    async_ipc_shutdown();
+    memory_pool_destroy(g_memory_pool);
+    string_pool_destroy(g_string_pool);
+    config_cleanup();
+    logger_shutdown();
 
     return 0;
 }
 
 static void destroy_window_cb(GtkWidget* widget, GtkWidget* window) {
+    (void)widget; // Suppress unused parameter warning
+    (void)window; // Suppress unused parameter warning
+
+    LOG_INFO("Application window destroyed, shutting down");
     gtk_main_quit();
-}
-
-static gboolean close_web_view_cb(WebKitWebView* web_view, GtkWidget* window) {
-    gtk_widget_destroy(window);
-    return TRUE;
-}
-
-static void web_view_load_changed_cb(WebKitWebView* web_view, WebKitLoadEvent load_event, gpointer user_data) {
-    if (load_event == WEBKIT_LOAD_FINISHED) {
-        // Inject IPC script
-        const char* ipc_script =
-            "window.magicIDE = {"
-            "  sendMessage: function(method, params) {"
-            "    window.postMessage({method: method, params: params}, '*');"
-            "  },"
-            "  readFile: function(filename, callback) {"
-            "    this.sendMessage('readFile', {filename: filename});"
-            "  },"
-            "  writeFile: function(filename, content, callback) {"
-            "    this.sendMessage('writeFile', {filename: filename, content: content});"
-            "  },"
-            "  listDirectory: function(dirname, callback) {"
-            "    this.sendMessage('listDirectory', {dirname: dirname});"
-            "  }"
-            "};"
-            ""
-            "window.addEventListener('message', function(event) {"
-            "  if (event.data && typeof event.data === 'object') {"
-            "    // Handle messages from backend"
-            "    console.log('Received message from backend:', event.data);"
-            "  }"
-            "});";
-
-        webkit_web_view_evaluate_javascript(web_view, ipc_script, -1, NULL, NULL, NULL, NULL, NULL);
-    }
-}
-
-static gboolean web_view_decide_policy_cb(WebKitWebView* web_view, WebKitPolicyDecision* decision, WebKitPolicyDecisionType decision_type, gpointer user_data) {
-    if (decision_type == WEBKIT_POLICY_DECISION_TYPE_NAVIGATION_ACTION) {
-        WebKitNavigationAction* action = webkit_navigation_policy_decision_get_navigation_action(WEBKIT_NAVIGATION_POLICY_DECISION(decision));
-        WebKitURIRequest* request = webkit_navigation_action_get_request(action);
-        const char* uri = webkit_uri_request_get_uri(request);
-
-        // Handle custom URI scheme for IPC
-        if (g_str_has_prefix(uri, "magicide://")) {
-            // Extract message from URI
-            const char* message = uri + strlen("magicide://");
-            handle_frontend_message(web_view, message);
-            webkit_policy_decision_ignore(decision);
-            return TRUE;
-        }
-    }
-    return FALSE;
-}
-
-static void web_view_script_dialog_cb(WebKitWebView* web_view, WebKitScriptDialog* dialog, gpointer user_data) {
-    WebKitScriptDialogType type = webkit_script_dialog_get_dialog_type(dialog);
-    if (type == WEBKIT_SCRIPT_DIALOG_ALERT || type == WEBKIT_SCRIPT_DIALOG_CONFIRM || type == WEBKIT_SCRIPT_DIALOG_PROMPT) {
-        const char* message = webkit_script_dialog_get_message(dialog);
-        printf("JavaScript Dialog: %s\n", message);
-
-        // For now, just accept all dialogs
-        webkit_script_dialog_confirm(dialog, TRUE);
-    }
 }
