@@ -27,6 +27,8 @@ set(SOURCES
     src/webview.c
     src/file_manager.c
     src/ipc.c
+    src/terminal.c
+    src/lsp.c
 )
 
 # Create executable
