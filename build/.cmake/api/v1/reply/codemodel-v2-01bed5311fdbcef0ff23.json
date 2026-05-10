@@ -7,7 +7,7 @@
 				{
 					"build" : ".",
 					"hasInstallRule" : true,
-					"jsonFile" : "directory-.-aa13405f516e4e3f5efc.json",
+					"jsonFile" : "directory-.-96daa42dc260922b4fd7.json",
 					"minimumCMakeVersion" : 
 					{
 						"string" : "3.10"
@@ -40,7 +40,7 @@
 				{
 					"directoryIndex" : 0,
 					"id" : "magic-ide::@6890427a1f51a3e7e1df",
-					"jsonFile" : "target-magic-ide-0719de3045e3fe5a6fef.json",
+					"jsonFile" : "target-magic-ide-28ae05c1cbc0739d5ce8.json",
 					"name" : "magic-ide",
 					"projectIndex" : 0
 				}

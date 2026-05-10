@@ -222,6 +222,30 @@ src/ipc.c.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/magic-ide.dir/build.make CMakeFiles/magic-ide.dir/src/ipc.c.s
 .PHONY : src/ipc.c.s
 
+src/lsp.o: src/lsp.c.o
+.PHONY : src/lsp.o
+
+# target to build an object file
+src/lsp.c.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/magic-ide.dir/build.make CMakeFiles/magic-ide.dir/src/lsp.c.o
+.PHONY : src/lsp.c.o
+
+src/lsp.i: src/lsp.c.i
+.PHONY : src/lsp.i
+
+# target to preprocess a source file
+src/lsp.c.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/magic-ide.dir/build.make CMakeFiles/magic-ide.dir/src/lsp.c.i
+.PHONY : src/lsp.c.i
+
+src/lsp.s: src/lsp.c.s
+.PHONY : src/lsp.s
+
+# target to generate assembly for a file
+src/lsp.c.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/magic-ide.dir/build.make CMakeFiles/magic-ide.dir/src/lsp.c.s
+.PHONY : src/lsp.c.s
+
 src/main.o: src/main.c.o
 .PHONY : src/main.o
 
@@ -245,6 +269,30 @@ src/main.s: src/main.c.s
 src/main.c.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/magic-ide.dir/build.make CMakeFiles/magic-ide.dir/src/main.c.s
 .PHONY : src/main.c.s
+
+src/terminal.o: src/terminal.c.o
+.PHONY : src/terminal.o
+
+# target to build an object file
+src/terminal.c.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/magic-ide.dir/build.make CMakeFiles/magic-ide.dir/src/terminal.c.o
+.PHONY : src/terminal.c.o
+
+src/terminal.i: src/terminal.c.i
+.PHONY : src/terminal.i
+
+# target to preprocess a source file
+src/terminal.c.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/magic-ide.dir/build.make CMakeFiles/magic-ide.dir/src/terminal.c.i
+.PHONY : src/terminal.c.i
+
+src/terminal.s: src/terminal.c.s
+.PHONY : src/terminal.s
+
+# target to generate assembly for a file
+src/terminal.c.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/magic-ide.dir/build.make CMakeFiles/magic-ide.dir/src/terminal.c.s
+.PHONY : src/terminal.c.s
 
 src/webview.o: src/webview.c.o
 .PHONY : src/webview.o
@@ -289,9 +337,15 @@ help:
 	@echo "... src/ipc.o"
 	@echo "... src/ipc.i"
 	@echo "... src/ipc.s"
+	@echo "... src/lsp.o"
+	@echo "... src/lsp.i"
+	@echo "... src/lsp.s"
 	@echo "... src/main.o"
 	@echo "... src/main.i"
 	@echo "... src/main.s"
+	@echo "... src/terminal.o"
+	@echo "... src/terminal.i"
+	@echo "... src/terminal.s"
 	@echo "... src/webview.o"
 	@echo "... src/webview.i"
 	@echo "... src/webview.s"

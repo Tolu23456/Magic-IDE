@@ -10,7 +10,9 @@ set(CMAKE_DEPENDS_LANGUAGES
 set(CMAKE_DEPENDS_DEPENDENCY_FILES
   "/workspaces/Magic-IDE/src/file_manager.c" "CMakeFiles/magic-ide.dir/src/file_manager.c.o" "gcc" "CMakeFiles/magic-ide.dir/src/file_manager.c.o.d"
   "/workspaces/Magic-IDE/src/ipc.c" "CMakeFiles/magic-ide.dir/src/ipc.c.o" "gcc" "CMakeFiles/magic-ide.dir/src/ipc.c.o.d"
+  "/workspaces/Magic-IDE/src/lsp.c" "CMakeFiles/magic-ide.dir/src/lsp.c.o" "gcc" "CMakeFiles/magic-ide.dir/src/lsp.c.o.d"
   "/workspaces/Magic-IDE/src/main.c" "CMakeFiles/magic-ide.dir/src/main.c.o" "gcc" "CMakeFiles/magic-ide.dir/src/main.c.o.d"
+  "/workspaces/Magic-IDE/src/terminal.c" "CMakeFiles/magic-ide.dir/src/terminal.c.o" "gcc" "CMakeFiles/magic-ide.dir/src/terminal.c.o.d"
   "/workspaces/Magic-IDE/src/webview.c" "CMakeFiles/magic-ide.dir/src/webview.c.o" "gcc" "CMakeFiles/magic-ide.dir/src/webview.c.o.d"
   )
 
